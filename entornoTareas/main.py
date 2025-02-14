@@ -19,3 +19,8 @@ tareas = [
 @app.get("/", tags=["Inicio"])
 def home():
     return {"mensaje": "¡Bienvenido a la API de Gestión de Tareas!"}
+
+#EndPoint CONSULTA TODOS
+@app.get('/todasTareas',tags=['Operaciones CRUD'])
+def leer():
+	return {'Tareas Registradas' : tareas}
