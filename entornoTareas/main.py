@@ -6,9 +6,8 @@ app = FastAPI(
     description="API para gestionar una lista de tareas con FastAPI",
     version="1.0",
     contact={
-        "name": "Tu Nombre",
-        "email": "tuemail@example.com",
-        "url": "https://tusitio.com"
+        "name": "Fernando López Alcalá",
+        "email": "122042926@upq.edu.mx",
     }
 )
 
