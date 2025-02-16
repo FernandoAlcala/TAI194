@@ -4,7 +4,12 @@ from typing import Optional
 app = FastAPI(
     title="API de Gestión de Tareas",
     description="API para gestionar una lista de tareas con FastAPI",
-    version="1.0.1"
+    version="1.0",
+    contact={
+        "name": "Tu Nombre",
+        "email": "tuemail@example.com",
+        "url": "https://tusitio.com"
+    }
 )
 
 # Base de datos simulada
@@ -49,4 +54,13 @@ def actualizar_tarea(id: int, tarea_actualizada: dict):
         if tarea["id"] == id:
             tareas[index].update(tarea_actualizada)
             return tareas[index]
+    raise HTTPException(status_code=404, detail="Tarea no encontrada")
+
+# EndPoint Eliminar
+@app.delete("/tareas/{id}", tags=["Operaciones CRUD"])
+def eliminar_tarea(id: int):
+    for index, tarea in enumerate(tareas):
+        if tarea["id"] == id:
+            tareas.pop(index)
+            return {"mensaje": "Tarea eliminada"}
     raise HTTPException(status_code=404, detail="Tarea no encontrada")
