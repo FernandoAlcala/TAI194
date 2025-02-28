@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from typing import Optional, List
 #from pydantic import BaseModel
-from models import modelUsuario
+from models import modelUsuario, modelAuth
+from genToken import createToken
 
 app = FastAPI(
 	title="Mi primer API",
@@ -27,6 +28,16 @@ usuarios=[
 @app.get('/',tags=['Inicio'])
 def home():
 	return {'hello':'Hello FastAPI!'}
+
+#EndPoint para generar Token
+@app.post('/auth', tags=['Autentificacion'])
+def auth(credenciales:modelAuth):
+	if credenciales.mail == 'fernando@example.com' and credenciales.passw == '123456789':
+		token:str = createToken(credenciales.model_dump())
+		print(token)
+		return{"Aviso:":"Token Generado"}
+	else:
+		return{"Aviso:":"El usuario no cuenta con permiso"}
 
 #EndPoint CONSULTA TODOS
 @app.get('/todosUsuarios', response_model=List[modelUsuario], tags=['Operaciones CRUD'])
