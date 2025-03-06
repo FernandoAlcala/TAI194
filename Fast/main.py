@@ -1,8 +1,9 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from typing import Optional, List
 #from pydantic import BaseModel
 from models import modelUsuario, modelAuth
 from genToken import createToken
+from middlewares import BearerJWT
 
 app = FastAPI(
 	title="Mi primer API",
@@ -40,7 +41,7 @@ def auth(credenciales:modelAuth):
 		return{"Aviso:":"El usuario no cuenta con permiso"}
 
 #EndPoint CONSULTA TODOS
-@app.get('/todosUsuarios', response_model=List[modelUsuario], tags=['Operaciones CRUD'])
+@app.get('/todosUsuarios', dependencies=[Depends(BearerJWT())], response_model=List[modelUsuario], tags=['Operaciones CRUD'])
 def leer():
 	return usuarios
 	
