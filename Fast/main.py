@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.responses import JSONResponse
 from typing import Optional, List
 #from pydantic import BaseModel
 from models import modelUsuario, modelAuth
@@ -36,7 +37,7 @@ def auth(credenciales:modelAuth):
 	if credenciales.mail == 'fernando@example.com' and credenciales.passw == '123456789':
 		token:str = createToken(credenciales.model_dump())
 		print(token)
-		return{"Aviso:":"Token Generado"}
+		return JSONResponse(content=token)
 	else:
 		return{"Aviso:":"El usuario no cuenta con permiso"}
 
