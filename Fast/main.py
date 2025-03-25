@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from typing import Optional, List
 #from pydantic import BaseModel
@@ -46,9 +47,33 @@ def auth(credenciales:modelAuth):
 		return{"Aviso:":"El usuario no cuenta con permiso"}
 
 #EndPoint CONSULTA TODOS
-@app.get('/todosUsuarios', dependencies=[Depends(BearerJWT())], response_model=List[modelUsuario], tags=['Operaciones CRUD'])
+@app.get('/todosUsuarios', tags=['Operaciones CRUD'])
 def leer():
-	return usuarios
+	db=Session()
+	try:
+		consulta=db.query(User).all()
+		return JSONResponse(content= jsonable_encoder(consulta))
+	except Exception as e:
+		db.rollback()
+		return JSONResponse(status_code=500,content={"message":"No fue posible consultar", "error": str(e)})
+	finally:
+		db.close()
+
+#EndPoint BUSCAR POR ID
+@app.get('/usuario/{id}', tags=['Operaciones CRUD'])
+def leeruno(id:int):
+	db=Session()
+	try:
+		consulta1=db.query(User).filter(User.id == id).first()
+		if not consulta1:
+			return JSONResponse(status_code=404, content={"mensaje":"Usuario no encontrado"})
+		else:
+			return JSONResponse(content= jsonable_encoder(consulta1))
+	except Exception as e:
+		db.rollback()
+		return JSONResponse(status_code=500,content={"message":"No fue posible consultar", "error": str(e)})
+	finally:
+		db.close()
 	
 #EndPoint POST
 @app.post('/usuarios/', response_model=modelUsuario, tags=['Operaciones CRUD'])
