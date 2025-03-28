@@ -91,18 +91,38 @@ def guardar(usuario:modelUsuario):
 
 #EndPoint Actualizar
 @app.put('/usuarios/{id}', response_model=modelUsuario, tags=['Operaciones CRUD'])
-def actualizar(id:int,usuarioActualizado:modelUsuario):
-	for index, usr in enumerate(usuarios):
-		if usr["id"] == id:
-			usuarios[index] = usuarioActualizado.model_dump()
-			return usuarios[index]
-	raise HTTPException(status_code=400, detail="El usuario no existe")
+def actualizar(id:int, usuarioActualizado:modelUsuario):
+	db=Session()
+	try:
+		usuario_db = db.query(User).filter(User.id == id).first()
+		if not usuario_db:
+			return JSONResponse(status_code=404, content={"mensaje":"Usuario no encontrado"})
+		
+		for key, value in usuarioActualizado.model_dump().items():
+			setattr(usuario_db, key, value)
+		
+		db.commit()
+		return JSONResponse(status_code=200, content={"message":"Usuario Actualizado", "usuario":usuarioActualizado.model_dump()})
+	except Exception as e:
+		db.rollback()
+		return JSONResponse(status_code=500,content={"message":"Error al actualizar", "error": str(e)})
+	finally:
+		db.close()
 
 #EndPoint Eliminar
-@app.delete('/usuarios/{id}',tags=['Operaciones CRUD'])
+@app.delete('/usuarios/{id}', tags=['Operaciones CRUD'])
 def eliminar(id:int):
-	for index, usr in enumerate(usuarios):
-		if usr["id"] == id:
-			usuarios.pop(index)
-			return
-	raise HTTPException(status_code=400, detail="El usuario que estás buscando no existe")
+	db=Session()
+	try:
+		usuario_db = db.query(User).filter(User.id == id).first()
+		if not usuario_db:
+			return JSONResponse(status_code=404, content={"mensaje":"Usuario no encontrado"})
+		
+		db.delete(usuario_db)
+		db.commit()
+		return JSONResponse(status_code=200, content={"message":"Usuario Eliminado"})
+	except Exception as e:
+		db.rollback()
+		return JSONResponse(status_code=500, content={"message":"Error al eliminar", "error": str(e)})
+	finally:
+		db.close()
